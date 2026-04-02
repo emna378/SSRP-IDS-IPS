@@ -1,0 +1,15 @@
+[Unit]
+Description=Cybersecurity Monitoring Agent (IDS/IPS)
+After=network.target
+
+[Service]
+Type=simple
+# Ensure the path matches your Ansible destination
+ExecStart=/usr/bin/python3 /opt/agent/agent.py
+Restart=always
+RestartSec=5
+# Since your script uses iptables and sniffs traffic, it needs root
+User=root
+
+[Install]
+WantedBy=multi-user.target 

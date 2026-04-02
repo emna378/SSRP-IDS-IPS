@@ -1,0 +1,24 @@
+---
+- name: Copy agent.py
+  copy:
+    src: agent1.py
+    dest: /opt/agent/agent.py
+    mode: '0755'
+
+- name: Install systemd service
+  copy:
+    src: agent.service
+    dest: /etc/systemd/system/agent.service
+
+- name: Reload systemd
+  command: systemctl daemon-reexec
+
+- name: Start agent
+  systemd:
+    name: agent
+    enabled: yes
+    state: restarted
+
+
+
+

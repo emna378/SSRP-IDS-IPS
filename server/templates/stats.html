@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiques SSPR - Analyse des Menaces</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-black: #0a0a0a;
+            --secondary-black: #1a1a1a;
+            --dark-black: #000000;
+            --accent-red: #ff0033;
+            --light-red: #ff3355;
+            --dark-red: #cc0022;
+            --gray-dark: #2a2a2a;
+            --gray-medium: #3a3a3a;
+            --gray-light: #555555;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --text-muted: #999999;
+        }
+
+        body {
+            background-color: var(--primary-black);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .security-navbar {
+            background: linear-gradient(to right, var(--dark-black), var(--secondary-black));
+            border-bottom: 3px solid var(--accent-red);
+            box-shadow: 0 4px 20px rgba(255, 0, 51, 0.2);
+            padding: 15px 0;
+            margin-bottom: 40px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-brand i {
+            color: var(--accent-red);
+            font-size: 28px;
+            text-shadow: 0 0 10px rgba(255, 0, 51, 0.5);
+        }
+
+        .logo-admin {
+            background: linear-gradient(to right, var(--accent-red), var(--light-red));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+        }
+
+        /* Conteneur principal */
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .stats-header {
+            background: linear-gradient(145deg, var(--secondary-black), var(--dark-black));
+            border: 1px solid var(--gray-medium);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, var(--accent-red), var(--light-red));
+        }
+
+        .stats-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--text-primary), var(--accent-red));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .stats-subtitle {
+            color: var(--text-muted);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-subtitle i {
+            color: var(--accent-red);
+        }
+
+        /* KPI Principal */
+        .main-kpi {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .kpi-badge {
+            display: inline-block;
+            background: rgba(255, 0, 51, 0.1);
+            border: 2px solid var(--accent-red);
+            border-radius: 20px;
+            padding: 8px 20px;
+            color: var(--accent-red);
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-value {
+            font-size: 72px;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-shadow: 0 0 30px rgba(255, 0, 51, 0.3);
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .kpi-label {
+            color: var(--text-muted);
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Tableau */
+        .table-container {
+            background: var(--secondary-black);
+            border: 1px solid var(--gray-medium);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .table-header {
+            background: linear-gradient(to right, var(--dark-black), var(--gray-dark));
+            padding: 25px;
+            border-bottom: 2px solid var(--accent-red);
+        }
+
+        .table-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .table-title i {
+            color: var(--accent-red);
+            font-size: 28px;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--secondary-black);
+        }
+
+        .stats-table th {
+            text-align: left;
+            padding: 25px;
+            background: var(--gray-dark);
+            color: var(--accent-red);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--gray-medium);
+        }
+
+        .stats-table th:first-child {
+            border-top-left-radius: 12px;
+        }
+
+        .stats-table th:last-child {
+            border-top-right-radius: 12px;
+        }
+
+        .stats-table td {
+            padding: 25px;
+            border-bottom: 1px solid var(--gray-medium);
+            color: var(--text-secondary);
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .stats-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .stats-table tbody tr:hover td {
+            background: rgba(255, 0, 51, 0.05);
+            color: var(--text-primary);
+        }
+
+        .attack-type {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .type-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 0, 51, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-red);
+            font-size: 22px;
+        }
+
+        .type-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 20px;
+        }
+
+        .type-count {
+            font-weight: 700;
+            color: var(--accent-red);
+            font-size: 24px;
+        }
+
+        .type-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--gray-dark);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .type-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--accent-red), var(--light-red));
+            border-radius: 4px;
+        }
+
+        /* Visualisation */
+        .visualization {
+            background: linear-gradient(145deg, var(--secondary-black), var(--dark-black));
+            border: 1px solid var(--gray-medium);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .viz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .viz-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .viz-title i {
+            color: var(--accent-red);
+        }
+
+        .viz-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .viz-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .viz-label {
+            min-width: 200px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .viz-bar-container {
+            flex: 1;
+            height: 30px;
+            background: var(--gray-dark);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .viz-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--accent-red), var(--light-red));
+            border-radius: 15px;
+            transition: width 1s ease;
+        }
+
+        .viz-count {
+            min-width: 80px;
+            text-align: right;
+            color: var(--accent-red);
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        /* Actions */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 50px;
+            margin-bottom: 30px;
+        }
+
+        .btn-custom {
+            background: linear-gradient(to right, var(--accent-red), var(--light-red));
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .btn-custom:hover {
+            background: linear-gradient(to right, var(--dark-red), var(--accent-red));
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 0, 51, 0.3);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            color: var(--accent-red);
+            border: 2px solid var(--accent-red);
+            padding: 13px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .btn-outline-custom:hover {
+            background: rgba(255, 0, 51, 0.1);
+            color: var(--light-red);
+            border-color: var(--light-red);
+            transform: translateY(-3px);
+        }
+
+        /* Footer */
+        .stats-footer {
+            margin-top: 60px;
+            padding-top: 25px;
+            border-top: 1px solid var(--gray-dark);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            background: rgba(255, 0, 51, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: 20px;
+            margin-top: 15px;
+            color: var(--accent-red);
+            font-weight: 600;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-black);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-red);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--light-red);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-title {
+                font-size: 28px;
+            }
+            
+            .kpi-value {
+                font-size: 48px;
+            }
+            
+            .stats-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .attack-type {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-custom, .btn-outline-custom {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="security-navbar">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="/dashboard" class="nav-brand">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>SSPR<span class="logo-admin">ADMIN</span></span>
+                </a>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <span style="color: var(--accent-red); font-weight: 600;">
+                        <i class="fas fa-chart-line"></i> Module Statistiques
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <div class="stats-container">
+        <!-- En-tête -->
+        <div class="stats-header">
+            <h1 class="stats-title">
+                <i class="fas fa-chart-bar"></i>
+                Analyse des Attaques Détectées
+            </h1>
+            <div class="stats-subtitle">
+                <i class="fas fa-eye"></i>
+                Données de surveillance en temps réel - Système SSPR
+            </div>
+        </div>
+
+        <!-- KPI Principal -->
+        <div class="main-kpi">
+            <div class="kpi-badge">
+                <i class="fas fa-shield-alt"></i> TOTAL DES INCIDENTS
+            </div>
+            <div class="kpi-value">{{ total }}</div>
+            <div class="kpi-label">Attaques détectées et analysées</div>
+        </div>
+
+        <!-- Tableau des statistiques -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">
+                    <i class="fas fa-table"></i>
+                    Répartition Détaillée par Type d'Attaque
+                </h3>
+            </div>
+            
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th style="width: 45%;">Type d'Attaque</th>
+                        <th style="width: 25%;">Nombre d'Occurrences</th>
+                        <th style="width: 30%;">Pourcentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attack_type, count in by_type %}
+                    {% set percentage = (count / total * 100)|round(1) if total > 0 else 0 %}
+                    <tr>
+                        <td>
+                            <div class="attack-type">
+                                <div class="type-icon">
+                                    {% if "ddos" in attack_type.lower() or "dos" in attack_type.lower() %}
+                                        <i class="fas fa-network-wired"></i>
+                                    {% elif "brute" in attack_type.lower() %}
+                                        <i class="fas fa-key"></i>
+                                    {% elif "injection" in attack_type.lower() %}
+                                        <i class="fas fa-code"></i>
+                                    {% elif "phishing" in attack_type.lower() %}
+                                        <i class="fas fa-fish"></i>
+                                    {% elif "malware" in attack_type.lower() %}
+                                        <i class="fas fa-virus"></i>
+                                    {% elif "xss" in attack_type.lower() %}
+                                        <i class="fas fa-code"></i>
+                                    {% elif "scan" in attack_type.lower() %}
+                                        <i class="fas fa-search"></i>
+                                    {% else %}
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    {% endif %}
+                                </div>
+                                <div style="flex: 1;">
+                                    <div class="type-name">{{ attack_type }}</div>
+                                    <div class="type-bar">
+                                        <div class="type-fill" style="width: {{ percentage }}%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="type-count">{{ count }}</span>
+                        </td>
+                        <td>
+                            <span style="font-size: 22px; font-weight: 700; color: var(--text-primary);">
+                                {{ percentage }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Visualisation Graphique -->
+        <div class="visualization">
+            <div class="viz-header">
+                <h3 class="viz-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Visualisation des Proportions
+                </h3>
+                <span style="color: var(--accent-red); font-weight: 600;">
+                    Total: {{ total }} attaques
+                </span>
+            </div>
+            
+            <div class="viz-bars">
+                {% for attack_type, count in by_type %}
+                {% set percentage = (count / total * 100)|round(1) if total > 0 else 0 %}
+                <div class="viz-item">
+                    <div class="viz-label">{{ attack_type }}</div>
+                    <div class="viz-bar-container">
+                        <div class="viz-bar" style="width: {{ percentage }}%;"></div>
+                    </div>
+                    <div class="viz-count">{{ count }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="action-buttons">
+            <a href="/dashboard" class="btn-outline-custom">
+                <i class="fas fa-arrow-left"></i> Retour au Dashboard
+            </a>
+            <button class="btn-custom" onclick="window.print()">
+                <i class="fas fa-print"></i> Imprimer le Rapport
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="stats-footer">
+            <p>Système de Sécurité SSPR Admin &copy; 2024 - Analyse des menaces en temps réel</p>
+            <div class="security-badge">
+                <i class="fas fa-lock"></i>
+                Données sécurisées - Rapport généré le {{ current_date }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Animation des barres de progression
+        document.addEventListener('DOMContentLoaded', function() {
+            const bars = document.querySelectorAll('.viz-bar');
+            bars.forEach(bar => {
+                const originalWidth = bar.style.width;
+                bar.style.width = '0%';
+                
+                setTimeout(() => {
+                    bar.style.transition = 'width 1.5s ease-out';
+                    bar.style.width = originalWidth;
+                }, 300);
+            });
+            
+            // Animation d'entrée des lignes du tableau
+            const tableRows = document.querySelectorAll('.stats-table tbody tr');
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                    row.style.transition = 'all 0.5s ease-out';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, 100 * index);
+            });
+        });
+
+        // Mise à jour de la date actuelle
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const dateElements = document.querySelectorAll('.current-date');
+        dateElements.forEach(el => {
+            el.textContent = now.toLocaleDateString('fr-FR', options);
+        });
+
+        console.log('Module d\'analyse SSPR chargé - Affichage des données réelles');
+    </script>
+</body>
+</html>
+
+
+

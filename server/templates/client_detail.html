@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Détails Client</title>
+
+    <script>
+        // Rafraîchir la page toutes les 5 secondes
+        setTimeout(function(){
+            window.location.reload(1);
+        }, 5000);
+    </script>
+
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            color: #ff0000;
+            margin-top: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .client-card {
+            width: 420px;
+            background: #111;
+            border: 2px solid #ff0000;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
+        }
+
+        .client-card p {
+            color: #ffffff;
+            background: #1a1a1a;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ff0000;
+            font-size: 15px;
+        }
+
+        .alert {
+            margin-top: 15px;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            background: #300;
+            border: 2px solid red;
+            border-radius: 6px;
+            color: #ffffff;
+        }
+
+        a {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            text-align: center;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: bold;
+            border: 2px solid #ff0000;
+            padding: 10px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        a:hover {
+            background: #ff0000;
+            color: #000;
+        }
+	.alert-btn {
+    display: block;
+    margin-top: 20px;
+    padding: 15px;
+    text-align: center;
+    background: red;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    box-shadow: 0 0 20px red;
+    animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+    0%   { box-shadow: 0 0 10px red; }
+    50%  { box-shadow: 0 0 30px red; }
+    100% { box-shadow: 0 0 10px red; }
+}
+
+.alert-btn:hover {
+    background: darkred;
+}
+
+    </style>
+</head>
+
+<body>
+
+<h2>Détails pour {{ latest.hostname if latest else ip }}</h2>
+
+<div class="cards-container">
+
+    <div class="client-card">
+
+        {% if latest %}
+            <p>CPU% : <span style="color:{{ 'red' if latest.cpu_percent > 70 else 'white' }}">{{ latest.cpu_percent }}</span></p>
+            <p>RAM% : <span style="color:{{ 'red' if latest.ram_percent > 80 else 'white' }}">{{ latest.ram_percent }}</span></p>
+            <p>Ports ouverts : <span style="color:{{ 'red' if latest.open_ports_count > 10 else 'white' }}">{{ latest.open_ports|join(', ') }}</span></p>
+            <p>Logs count : {{ latest.logs_count }}</p>
+            <p>Dernière mise à jour : {{ latest.timestamp }}</p>
+
+            {% if alert %}
+                <a href="{{ url_for('list_alerts') }}" class="alert-btn">
+        ⚠️ Alerte détectée !
+    </a> 
+            {% endif %}
+        {% else %}
+            <p>Aucune donnée reçue pour ce client.</p>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<a href="{{ url_for('dashboard') }}">Retour au dashboard</a>
+
+</body>
+</html>
+

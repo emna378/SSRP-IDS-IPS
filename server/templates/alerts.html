@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alertes de Sécurité</title>
+
+    <style>
+        body {
+            background: #0a0a0a;
+            color: white;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: red;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #111;
+        }
+
+        th {
+            background: #200;
+            color: red;
+            padding: 12px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+
+        tr:hover {
+            background: #1a1a1a;
+        }
+
+        .alert-type {
+            color: red;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 6px;
+            margin: 2px;
+        }
+
+        .block-btn {
+            background: red;
+            color: white;
+            box-shadow: 0 0 10px red;
+        }
+
+        .block-btn:hover {
+            background: darkred;
+        }
+
+        .kill-btn {
+            background: black;
+            color: white;
+            border: 1px solid red;
+        }
+
+        .kill-btn:hover {
+            background: red;
+            color: black;
+        }
+
+        .back-btn {
+            margin-top: 25px;
+            display: block;
+            text-align: center;
+        }
+
+        .back-btn button {
+            background: black;
+            color: white;
+            border: 2px solid red;
+            padding: 10px 20px;
+        }
+
+        .back-btn button:hover {
+            background: red;
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>🚨 Alertes de Sécurité</h2>
+
+<table>
+    <tr>i
+        <th>IP Attaquant</th>
+        <th>Hostname</th>
+        <th>Type d’alerte</th>
+        <th>PID</th>
+        <th>Dernière détection</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for alert in alerts %}
+    <tr>
+        <td>{{ alert.attacker_ip or "N/A" }}</td>
+        <td>{{ alert.hostname }}</td>
+        <td class="alert-type">{{ alert.type }}</td>
+        <td>{{ alert.pid if alert.pid else "N/A" }}</td>
+        <td>{{ alert.timestamp }}</td>
+        <td>
+
+            <a href="{{ url_for('block_ip', ip=alert.attacker_ip) }}">
+                <button class="block-btn">🔒 Block IP</button>
+            </a>
+
+            {% if alert.pid %}
+            <a href="{{ url_for('kill_process', ip=alert.ip, pid=alert.pid) }}">
+                <button class="kill-btn">🛑 Kill Process</button>
+            </a>
+            {% endif %}
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<div class="back-btn">
+    <a href="{{ url_for('dashboard') }}">
+        <button>⬅ Retour Dashboard</button>
+    </a>
+</div>
+
+</body>
+</html>
+
